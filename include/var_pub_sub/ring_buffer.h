@@ -192,7 +192,7 @@ class RingBuffer {
     return RoundPowOfTwo<decltype(n)>(n - 1);
   }
 
-  void CopyInLocked(const void *src, size_t len, size_t off) const {
+  void CopyInLocked(const void *src, size_t len, IndexType off) const {
     size_t size = this->size();
 
     off &= mask_;
@@ -202,7 +202,7 @@ class RingBuffer {
     memcpy(data_.get(), (uint8_t *)src + l, len - l);
   }
 
-  void CopyOutLocked(void *dst, size_t len, size_t off) const {
+  void CopyOutLocked(void *dst, size_t len, IndexType off) const {
     size_t size = this->size();
 
     off &= mask_;
@@ -213,15 +213,14 @@ class RingBuffer {
   }
 
   void CopyOutLocked(std::vector<uint8_t> *dst_vector, size_t len,
-                     size_t off) const {
+                     IndexType off) const {
     size_t size = this->size();
 
     off &= mask_;
     size_t l = std::min(len, size - off);
 
     dst_vector->assign(data_.get() + off, data_.get() + off + l);
-    dst_vector->insert(dst_vector->cbegin(), data_.get(),
-                       data_.get() + len - l);
+    dst_vector->insert(dst_vector->cend(), data_.get(), data_.get() + len - l);
   }
 
   bool HaveNewData(IndexType read_index) const {
