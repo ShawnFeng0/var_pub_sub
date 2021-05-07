@@ -20,7 +20,7 @@ class RingBuffer {
   using IndexType = uint64_t;
 
   explicit RingBuffer(size_t size) : mask_{GenerateRingbufferSize(size) - 1} {
-    data_ = std::unique_ptr<uint8_t>(new uint8_t[mask_ + 1]);
+    data_ = std::make_unique<uint8_t[]>(mask_ + 1);
   }
 
   RingBuffer(const RingBuffer &) = delete;
@@ -230,10 +230,10 @@ class RingBuffer {
 
   const IndexType mask_;     // Mask used to match the correct in / out pointer
   IndexType write_index_{};  // data is added at offset (in % size)
-  IndexType latest_data_index_{};  // Index of the latest data
-  IndexType read_index_{};         // data is extracted from off. (out % size)
-  std::unique_ptr<uint8_t> data_;  // the buffer holding the data
-  size_t max_packet_length_{1};    // The length of the longest set of data
+  IndexType latest_data_index_{};    // Index of the latest data
+  IndexType read_index_{};           // data is extracted from off. (out % size)
+  std::unique_ptr<uint8_t[]> data_;  // the buffer holding the data
+  size_t max_packet_length_{1};      // The length of the longest set of data
 
   mutable std::mutex mutex_;
   std::condition_variable in_signal_;
