@@ -114,18 +114,6 @@ class RingBuffer {
     return true;
   }
 
-  /**
-   * removes the entire fifo content
-   *
-   * Note: usage of Reset() is dangerous. It should be only called when the
-   * fifo is exclusived locked or when it is secured that no other thread is
-   * accessing the fifo.
-   */
-  void Reset() {
-    std::unique_lock<std::mutex> lg(mutex_);
-    latest_data_index_ = read_index_ = write_index_;
-  }
-
   size_t max_packet_length() const {
     std::unique_lock<std::mutex> lg(mutex_);
     return max_packet_length_;
