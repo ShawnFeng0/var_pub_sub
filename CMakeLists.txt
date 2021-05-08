@@ -10,4 +10,4 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 link_libraries(pthread)
 
-add_executable(var_pub_sub main.cpp)
+add_executable(var_pub_sub tests/pub_sub_test.cc)
