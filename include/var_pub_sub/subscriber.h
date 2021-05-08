@@ -22,11 +22,11 @@ class Subscriber {
   bool Update() { return read_index_ == ring_buffer_->latest_data_index(); }
 
   bool ReadWaitIfEmpty(int32_t time_ms = -1) {
-    return ring_buffer_->ReadWaitIfEmpty(&read_index_, &data_, time_ms);
+    return ring_buffer_->ReadDataPacket(&read_index_, &data_, time_ms);
   }
 
   bool ReadDataPacket() {
-    return ring_buffer_->ReadDataPacket(&read_index_, &data_);
+    return ring_buffer_->ReadDataPacket(&read_index_, &data_, 0);
   }
 
   const std::vector<uint8_t>& get_data() const { return data_; }

@@ -13,19 +13,17 @@
 #include <mutex>
 #include <vector>
 
+#include "noncopyable.h"
+
 namespace var_pub_sub {
 
-class RingBuffer {
+class RingBuffer : public Noncopyable {
  public:
   using IndexType = uint64_t;
 
   explicit RingBuffer(size_t size) : mask_{GenerateRingbufferSize(size) - 1} {
     data_ = std::make_unique<uint8_t[]>(mask_ + 1);
   }
-
-  RingBuffer(const RingBuffer &) = delete;
-  RingBuffer(const RingBuffer &&) = delete;
-  RingBuffer &operator=(const RingBuffer &) = delete;
 
   // A packet is entered, either completely written or discarded.
   bool WriteDataPacket(const void *data, size_t length) {
@@ -56,8 +54,8 @@ class RingBuffer {
     return true;
   }
 
-  bool ReadWaitIfEmpty(IndexType *read_index, std::vector<uint8_t> *data,
-                       int32_t time_ms = -1) {
+  bool ReadDataPacket(IndexType *read_index, std::vector<uint8_t> *data,
+                      int32_t time_ms = -1) {
     if (!read_index) {
       return false;
     }
@@ -69,33 +67,6 @@ class RingBuffer {
     } else if (!HaveNewData(*read_index)) {
       in_signal_.wait_for(lg, std::chrono::milliseconds{time_ms});
       if (!HaveNewData(*read_index)) return false;
-    }
-
-    // Reader is too far behind: some messages are lost
-    if (!IsInRange(read_index_, *read_index, write_index_)) {
-      *read_index = read_index_;
-    }
-
-    LengthPad length_pad;
-    CopyOutLocked(&length_pad, sizeof(length_pad), *read_index);
-    *read_index += sizeof(length_pad);
-    if (data) {
-      CopyOutLocked(data, length_pad, *read_index);
-    }
-    *read_index += length_pad;
-
-    return true;
-  }
-
-  bool ReadDataPacket(IndexType *read_index, std::vector<uint8_t> *data) {
-    if (!read_index) {
-      return false;
-    }
-
-    std::unique_lock<std::mutex> lg(mutex_);
-
-    if (!HaveNewData(*read_index)) {
-      return false;
     }
 
     // Reader is too far behind: some messages are lost

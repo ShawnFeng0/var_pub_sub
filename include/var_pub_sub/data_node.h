@@ -12,7 +12,7 @@
 
 namespace var_pub_sub {
 
-class DataNode {
+class DataNode : public Noncopyable {
  public:
   static std::shared_ptr<DataNode> CreateDataNode(size_t buffer_size) {
     return std::shared_ptr<DataNode>{new DataNode(buffer_size)};
