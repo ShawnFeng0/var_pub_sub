@@ -19,7 +19,7 @@ namespace var_pub_sub {
 
 class RingBuffer : public Noncopyable {
  public:
-  using IndexType = uint64_t;
+  using IndexType = size_t;
 
   explicit RingBuffer(size_t size) : mask_{GenerateRingbufferSize(size) - 1} {
     data_ = std::make_unique<uint8_t[]>(mask_ + 1);
