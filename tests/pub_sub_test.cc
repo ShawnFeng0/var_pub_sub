@@ -7,7 +7,7 @@
 #include "../include/var_pub_sub/data_node.h"
 
 TEST(pub_sub, multi_pub_sub) {
-  auto data_node = var_pub_sub::DataNode::CreateDataNode(900 * 1024);
+  auto data_node = var_pub_sub::CreateDataNode(900 * 1024);
 
   std::vector<int32_t> vec;
   vec.resize(20 * 1024);
