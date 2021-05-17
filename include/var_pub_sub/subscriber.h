@@ -32,7 +32,7 @@ class Subscriber {
   const std::vector<uint8_t>& get_data() const { return data_; }
 
  private:
-  RingBuffer::IndexType read_index_;
+  RingBuffer::SizeType read_index_;
   std::shared_ptr<RingBuffer> ring_buffer_;
   std::vector<uint8_t> data_;
 };

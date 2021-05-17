@@ -19,14 +19,14 @@ namespace var_pub_sub {
 
 class RingBuffer : public Noncopyable {
  public:
-  using IndexType = size_t;
+  using SizeType = uint64_t;
 
-  explicit RingBuffer(size_t size) : mask_{GenerateRingbufferSize(size) - 1} {
+  explicit RingBuffer(SizeType size) : mask_{GenerateRingbufferSize(size) - 1} {
     data_ = std::make_unique<uint8_t[]>(mask_ + 1);
   }
 
   // A packet is entered, either completely written or discarded.
-  bool WriteDataPacket(const void *data, size_t length) {
+  bool WriteDataPacket(const void *data, SizeType length) {
     if (!data || length > size()) {
       return false;
     }
@@ -54,7 +54,7 @@ class RingBuffer : public Noncopyable {
     return true;
   }
 
-  bool ReadDataPacket(IndexType *read_index, std::vector<uint8_t> *data,
+  bool ReadDataPacket(SizeType *read_index, std::vector<uint8_t> *data,
                       int32_t time_ms = -1) {
     if (!read_index) {
       return false;
@@ -85,30 +85,29 @@ class RingBuffer : public Noncopyable {
     return true;
   }
 
-  size_t max_packet_length() const {
+  SizeType max_packet_length() const {
     std::unique_lock<std::mutex> lg(mutex_);
     return max_packet_length_;
   }
 
-  IndexType latest_data_index() const {
+  SizeType latest_data_index() const {
     std::unique_lock<std::mutex> lg(mutex_);
     return latest_data_index_;
   }
 
   /* returns the size of the fifo in elements */
-  size_t size() const { return mask_ + 1; }
+  SizeType size() const { return mask_ + 1; }
 
   /* returns the number of used elements in the fifo */
-  size_t used() const { return write_index_ - read_index_; }
+  SizeType used() const { return write_index_ - read_index_; }
 
   /* returns the number of unused elements in the fifo */
-  size_t available() const { return size() - used(); }
+  SizeType available() const { return size() - used(); }
 
  private:
   using LengthPad = uint32_t;
 
-  static inline bool IsInRange(IndexType left, IndexType value,
-                               IndexType right) {
+  static inline bool IsInRange(SizeType left, SizeType value, SizeType right) {
     if (right > left) {
       return (left <= value) && (value <= right);
     } else {  // Maybe the data overflowed and a wraparound occurred
@@ -136,7 +135,7 @@ class RingBuffer : public Noncopyable {
     return value + 1;
   }
 
-  static inline size_t GenerateRingbufferSize(size_t size) {
+  static inline SizeType GenerateRingbufferSize(SizeType size) {
     if (size < 2) size = 2;
 
     // round up to the next power of 2, since our 'let the indices wrap'
@@ -151,47 +150,47 @@ class RingBuffer : public Noncopyable {
     return RoundPowOfTwo<decltype(n)>(n - 1);
   }
 
-  void CopyInLocked(const void *src, size_t len, IndexType off) const {
-    size_t size = this->size();
+  void CopyInLocked(const void *src, SizeType len, SizeType off) const {
+    SizeType size = this->size();
 
     off &= mask_;
-    size_t l = std::min(len, size - off);
+    SizeType l = std::min(len, size - off);
 
     memcpy(data_.get() + off, src, l);
     memcpy(data_.get(), (uint8_t *)src + l, len - l);
   }
 
-  void CopyOutLocked(void *dst, size_t len, IndexType off) const {
-    size_t size = this->size();
+  void CopyOutLocked(void *dst, SizeType len, SizeType off) const {
+    SizeType size = this->size();
 
     off &= mask_;
-    size_t l = std::min(len, size - off);
+    SizeType l = std::min(len, size - off);
 
     memcpy(dst, data_.get() + off, l);
     memcpy((uint8_t *)dst + l, data_.get(), len - l);
   }
 
-  void CopyOutLocked(std::vector<uint8_t> *dst_vector, size_t len,
-                     IndexType off) const {
-    size_t size = this->size();
+  void CopyOutLocked(std::vector<uint8_t> *dst_vector, SizeType len,
+                     SizeType off) const {
+    SizeType size = this->size();
 
     off &= mask_;
-    size_t l = std::min(len, size - off);
+    SizeType l = std::min(len, size - off);
 
     dst_vector->assign(data_.get() + off, data_.get() + off + l);
     dst_vector->insert(dst_vector->cend(), data_.get(), data_.get() + len - l);
   }
 
-  bool HaveNewData(IndexType read_index) const {
+  bool HaveNewData(SizeType read_index) const {
     return read_index != write_index_;
   }
 
-  const IndexType mask_;     // Mask used to match the correct in / out pointer
-  IndexType write_index_{};  // data is added at offset (in % size)
-  IndexType latest_data_index_{};    // Index of the latest data
-  IndexType read_index_{};           // data is extracted from off. (out % size)
+  const SizeType mask_;     // Mask used to match the correct in / out pointer
+  SizeType write_index_{};  // data is added at offset (in % size)
+  SizeType latest_data_index_{};     // Index of the latest data
+  SizeType read_index_{};            // data is extracted from off. (out % size)
   std::unique_ptr<uint8_t[]> data_;  // the buffer holding the data
-  size_t max_packet_length_{1};      // The length of the longest set of data
+  SizeType max_packet_length_{1};      // The length of the longest set of data
 
   mutable std::mutex mutex_;
   std::condition_variable in_signal_;
