@@ -12,26 +12,17 @@
 
 namespace var_pub_sub {
 
-class DataNode;
-static inline std::shared_ptr<DataNode> CreateDataNode(size_t buffer_size);
-
 class DataNode : public Noncopyable {
-  friend std::shared_ptr<DataNode> CreateDataNode(size_t buffer_size);
-
  public:
   Publisher CreatePublisher() { return Publisher(ring_buffer_); }
   Subscriber CreateSubscriber() { return Subscriber(ring_buffer_); }
 
- private:
   explicit DataNode(size_t buffer_size) {
     ring_buffer_ = std::make_shared<RingBuffer>(buffer_size);
   }
 
+ private:
   std::shared_ptr<RingBuffer> ring_buffer_;
 };
-
-static inline std::shared_ptr<DataNode> CreateDataNode(size_t buffer_size) {
-  return std::shared_ptr<DataNode>{new DataNode(buffer_size)};
-}
 
 }  // namespace var_pub_sub

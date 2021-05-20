@@ -1,20 +1,19 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
 #include <random>
 #include <thread>
 
 #include "../include/var_pub_sub/data_node.h"
 
 TEST(pub_sub, multi_pub_sub) {
-  auto data_node = var_pub_sub::CreateDataNode(900 * 1024);
+  var_pub_sub::DataNode data_node(900 * 1024);
 
   std::vector<int32_t> vec;
   vec.resize(20 * 1024);
   for (auto i = 0; i < vec.size(); i++) vec[i] = i;
 
   auto publish_thread = [&] {
-    auto pub = data_node->CreatePublisher();
+    auto pub = data_node.CreatePublisher();
     std::default_random_engine random_engine(pthread_self());
     std::uniform_int_distribution<size_t> distribution(1, vec.size());
 
@@ -33,7 +32,7 @@ TEST(pub_sub, multi_pub_sub) {
   }
 
   auto subscriber_thread = [&] {
-    auto sub = data_node->CreateSubscriber();
+    auto sub = data_node.CreateSubscriber();
     while (sub.ReadWaitIfEmpty(100)) {
       const auto &data = sub.get_data();
 
