@@ -19,10 +19,11 @@ TEST(pub_sub, multi_pub_sub) {
 
     int times = 20;
     while (times--) {
-      pub.WriteDataPacket(vec.data(),
-                          distribution(random_engine) * sizeof(vec[0]));
+      pub->WriteDataPacket(vec.data(),
+                           distribution(random_engine) * sizeof(vec[0]));
       usleep(30 * 1000);
     }
+    data_node.DestroyPublisher(pub);
   };
 
   std::vector<std::thread> pub_threads;
@@ -33,8 +34,8 @@ TEST(pub_sub, multi_pub_sub) {
 
   auto subscriber_thread = [&] {
     auto sub = data_node.CreateSubscriber();
-    while (sub.ReadWaitIfEmpty(100)) {
-      const auto &data = sub.get_data();
+    while (sub->ReadWaitIfEmpty(100)) {
+      const auto &data = sub->get_data();
 
       std::vector<int32_t> vec_copy;
       vec_copy.resize(data.size() / sizeof(int32_t));
@@ -44,6 +45,7 @@ TEST(pub_sub, multi_pub_sub) {
         ASSERT_EQ(vec[i], vec_copy[i]) << "i: " << i;
       }
     }
+    data_node.DestroySubscriber(sub);
   };
   std::vector<std::thread> sub_threads;
   sub_threads.reserve(10);
