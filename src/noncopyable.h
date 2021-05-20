@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace var_pub_sub {
+namespace vrb {
 
 class Noncopyable {
  public:

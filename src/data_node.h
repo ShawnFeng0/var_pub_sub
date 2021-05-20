@@ -10,15 +10,15 @@
 #include "ring_buffer.h"
 #include "subscriber.h"
 
-namespace var_pub_sub {
+namespace vrb {
 
 class DataNode : public Noncopyable {
  public:
   Publisher *CreatePublisher() { return new Publisher(ring_buffer_); }
-  void DestroyPublisher(Publisher *ptr) { delete ptr; }
+  static inline void DestroyPublisher(Publisher *ptr) { delete ptr; }
 
   Subscriber *CreateSubscriber() { return new Subscriber(ring_buffer_); }
-  void DestroySubscriber(Subscriber *ptr) { delete ptr; }
+  static inline void DestroySubscriber(Subscriber *ptr) { delete ptr; }
 
   explicit DataNode(size_t buffer_size) {
     ring_buffer_ = std::make_shared<RingBuffer>(buffer_size);

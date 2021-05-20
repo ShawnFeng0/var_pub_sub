@@ -9,7 +9,7 @@
 
 #include "ring_buffer.h"
 
-namespace var_pub_sub {
+namespace vrb {
 
 class Subscriber {
  public:

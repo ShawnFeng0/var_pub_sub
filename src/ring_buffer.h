@@ -15,7 +15,7 @@
 
 #include "noncopyable.h"
 
-namespace var_pub_sub {
+namespace vrb {
 
 class RingBuffer : public Noncopyable {
  public:

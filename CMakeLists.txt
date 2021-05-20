@@ -3,11 +3,12 @@ project(var_pub_sub)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# gtest
-find_package(GTest)
-link_libraries(GTest::GTest GTest::Main)
-include_directories(${GTEST_INCLUDE_DIRS})
+option(VRB_BUILD_TESTS "Build tests" OFF)
 
-link_libraries(pthread)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+add_library(vrb src/vrb.cc)
 
-add_executable(var_pub_sub tests/pub_sub_test.cc)
+if (VRB_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
