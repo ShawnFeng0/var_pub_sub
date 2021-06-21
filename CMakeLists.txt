@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-project(var_pub_sub)
+project(vrb)
 
 set(CMAKE_CXX_STANDARD 14)
 
 option(VRB_BUILD_TESTS "Build tests" OFF)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_library(vrb src/vrb.cc)
+add_library(${PROJECT_NAME} src/vrb.cc)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 # install vrb
 install(TARGETS vrb

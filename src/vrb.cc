@@ -2,9 +2,9 @@
 // Created by shawnfeng on 2021-05-20.
 //
 
-#include "include/vrb/vrb.h"
+#include "vrb/vrb.h"
 
-#include "src/data_node.h"
+#include "data_node.h"
 
 vrb_data_node_t *vrb_create_data_node(size_t ring_buffer_size) {
   return reinterpret_cast<vrb_data_node_t *>(

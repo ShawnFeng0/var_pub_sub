@@ -2,7 +2,7 @@
 // Created by shawnfeng on 2021-05-20.
 //
 #include <gtest/gtest.h>
-#include <include/vrb/vrb.h>
+#include <vrb/vrb.h>
 
 #include <random>
 #include <thread>
